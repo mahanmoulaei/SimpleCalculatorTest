@@ -3,9 +3,10 @@ package com.example.simplecalculatortest;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,7 +14,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.icu.text.DecimalFormat;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import java.util.ArrayList;
+import java.util.List;
+
+public class CalculatorActivity extends AppCompatActivity implements View.OnClickListener {
 
     EditText editTextCalculation;
     TextView textViewGeneratedOperation;
@@ -21,6 +25,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Operation generatedOperation;
     private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
     private boolean activateValidationButton = false;
+    String AllGeneratedOperations = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide(); //Hides The Application Title
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_calculator);
 
         InitializeScreenComponents();
     }
@@ -147,8 +152,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
             case R.id.buttonGenerate: {
-                generatedOperation = MathOperationGenerator.GenerateOperation();
-                textViewGeneratedOperation.setText(String.valueOf(generatedOperation));
+                GenerateOperation();
                 activateValidationButton = true;
                 break;
             }
@@ -162,58 +166,113 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             case R.id.buttonValidate: {
                 if (activateValidationButton == true) {
-                    Double rightNumber = new Double(generatedOperation.getRightNumber());
-                    Double leftNumber = new Double(generatedOperation.getLeftNumber());
-                    Operator operator = generatedOperation.getOperator();
-                    //Toast.makeText(this, operator.toString(), Toast.LENGTH_SHORT).show();
-                    switch (operator.toString()) {
-                        case "MINUS": {
-                            Double answer = leftNumber - rightNumber;
-                            if (Double.compare(Double.valueOf(editTextCalculation.getText().toString()), Double.valueOf(decimalFormat.format(answer))) == 0) {
-                                Toast.makeText(this, "Correct !!", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(this, "Incorrect !!", Toast.LENGTH_SHORT).show();
-                            }
-                            break;
-                        }
-                        case "PLUS": {
-                            Double answer = leftNumber + rightNumber;
-                            if (Double.compare(Double.valueOf(editTextCalculation.getText().toString()), Double.valueOf(decimalFormat.format(answer))) == 0) {
-                                Toast.makeText(this, "Correct !!", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(this, "Incorrect !!", Toast.LENGTH_SHORT).show();
-                            }
-                            break;
-                        }
-                        case "MULTIPLIER": {
-                            Double answer = leftNumber * rightNumber;
-                            if (Double.compare(Double.valueOf(editTextCalculation.getText().toString()), Double.valueOf(decimalFormat.format(answer))) == 0) {
-                                Toast.makeText(this, "Correct !!", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(this, "Incorrect !!", Toast.LENGTH_SHORT).show();
-                            }
-                            break;
-                        }
-                        case "DIVIDER": {
-                            Double answer = leftNumber / rightNumber;
-                            if (Double.compare(Double.valueOf(editTextCalculation.getText().toString()), Double.valueOf(decimalFormat.format(answer))) == 0) {
-                                //Toast.makeText(this, "Correct !!", Toast.LENGTH_SHORT).show();
-                                Toast.makeText(this, "Correct !! " + Double.valueOf(decimalFormat.format(answer)).toString(), Toast.LENGTH_SHORT).show();
-                            } else {
-                                //Toast.makeText(this, "Incorrect !!", Toast.LENGTH_SHORT).show();
-                                Toast.makeText(this, "Incorrect !! " + Double.valueOf(decimalFormat.format(answer)).toString(), Toast.LENGTH_SHORT).show();
-                            }
-                            break;
-                        }
-                    }
+                    ValidateOperation();
                 } else {
                     Toast.makeText(this, "You Have To Generate An Operation First!!!", Toast.LENGTH_SHORT).show();
                 }
+                break;
             }
             case R.id.buttonShowAll: {
-
+                ShowAllOperationsHistory();
                 break;
             }
         }
+    }
+
+    private void ValidateOperation() {
+        Double leftNumber = new Double(generatedOperation.getLeftNumber());
+        Double rightNumber = new Double(generatedOperation.getRightNumber());
+        Operator operator = generatedOperation.getOperator();
+        if (editTextCalculation.getText().toString() != null && editTextCalculation.getText().toString() != "" && !editTextCalculation.getText().toString().trim().isEmpty()) {
+            switch (operator.toString()) {
+                case "MINUS": {
+                    Double answer = leftNumber - rightNumber;
+                    Double systemAnswer = Double.valueOf(decimalFormat.format(answer));
+                    Double userAnswer = Double.valueOf(editTextCalculation.getText().toString());
+                    /*
+                    if (Double.compare(systemAnswer, userAnswer) == 0) {
+                        Toast.makeText(this, "Correct !! " + systemAnswer.toString(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Incorrect !! " + systemAnswer.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                    */
+                    SaveOperationInHistory(systemAnswer, userAnswer);
+                    break;
+                }
+                case "PLUS": {
+                    Double answer = leftNumber + rightNumber;
+                    Double systemAnswer = Double.valueOf(decimalFormat.format(answer));
+                    Double userAnswer = Double.valueOf(editTextCalculation.getText().toString());
+                    /*
+                    if (Double.compare(systemAnswer, userAnswer) == 0) {
+                        Toast.makeText(this, "Correct !! " + systemAnswer.toString(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Incorrect !! " + systemAnswer.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                    */
+                    SaveOperationInHistory(systemAnswer, userAnswer);
+                    break;
+                }
+                case "MULTIPLIER": {
+                    Double answer = leftNumber * rightNumber;
+                    Double systemAnswer = Double.valueOf(decimalFormat.format(answer));
+                    Double userAnswer = Double.valueOf(editTextCalculation.getText().toString());
+                    /*
+                    if (Double.compare(systemAnswer, userAnswer) == 0) {
+                        Toast.makeText(this, "Correct !! " + systemAnswer.toString(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Incorrect !! " + systemAnswer.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                    */
+                    SaveOperationInHistory(systemAnswer, userAnswer);
+                    break;
+                }
+                case "DIVIDER": {
+                    Double answer = leftNumber / rightNumber;
+                    Double systemAnswer = Double.valueOf(decimalFormat.format(answer));
+                    Double userAnswer = Double.valueOf(editTextCalculation.getText().toString());
+                    /*
+                    if (Double.compare(systemAnswer, userAnswer) == 0) {
+                        Toast.makeText(this, "Correct !! " + systemAnswer.toString(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Incorrect !! " + systemAnswer.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                    */
+                    SaveOperationInHistory(systemAnswer, userAnswer);
+                    break;
+                }
+            }
+        } else {
+            Toast.makeText(this, "You Have To Enter A Number First!!!", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    private void ShowAllOperationsHistory() {
+        Intent intent = new Intent(this, ShowAllActivity.class);
+        intent.putExtra("AllGeneratedOperations", AllGeneratedOperations);
+        startActivity(intent);
+    }
+
+    private void SaveOperationInHistory(Double systemAnswer, Double userAnswer) {
+        activateValidationButton = false;
+        textViewGeneratedOperation.setText(null);
+        editTextCalculation.setText(null);
+
+        if (Double.compare(systemAnswer, userAnswer) == 0) {
+            AllGeneratedOperations += String.valueOf(generatedOperation) + " = " + userAnswer + "\n"
+                                    + "Your Answer is Correct. \n"
+                                    + "-----------------------\n";
+        } else {
+            AllGeneratedOperations += String.valueOf(generatedOperation) + " = " + userAnswer + "\n"
+                    + "Your Answer is Wrong!!! \n"
+                    + "Correct Answer is: " + systemAnswer + "\n"
+                    + "-----------------------\n";
+        }
+    }
+
+    private void GenerateOperation() {
+        generatedOperation = MathOperationGenerator.GenerateOperation();
+        textViewGeneratedOperation.setText(String.valueOf(generatedOperation));
     }
 }
