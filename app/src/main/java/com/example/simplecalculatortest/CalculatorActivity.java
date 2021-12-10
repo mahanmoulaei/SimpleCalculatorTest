@@ -25,7 +25,10 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
     Operation generatedOperation;
     private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
     private boolean activateValidationButton = false;
-    String AllGeneratedOperations = "";
+    String AllGeneratedOperations = "", AnswerPercentage = "";
+    private int questionCounts = 0, correctAnswers = 0, wrongAnswers = 0;
+    private Double correctAnswersPercentage, wrongAnswersPercentage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -173,7 +176,11 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
                 break;
             }
             case R.id.buttonShowAll: {
-                ShowAllOperationsHistory();
+                if (AllGeneratedOperations != null && AllGeneratedOperations != "" && !AllGeneratedOperations.trim().isEmpty()) {
+                    ShowAllOperationsHistory();
+                } else {
+                    Toast.makeText(this, "You Have To Generate And Validate An Operation First!!!", Toast.LENGTH_SHORT).show();
+                }
                 break;
             }
         }
@@ -249,8 +256,14 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void ShowAllOperationsHistory() {
+        correctAnswersPercentage = Double.valueOf((correctAnswers * 100) / questionCounts);
+        wrongAnswersPercentage = Double.valueOf((wrongAnswers * 100) / questionCounts);
+        AnswerPercentage = "\n" + "%" + correctAnswersPercentage + " Correct Answer \n"
+                                + "%" + wrongAnswersPercentage + " Wrong Answer";
+
         Intent intent = new Intent(this, ShowAllActivity.class);
         intent.putExtra("AllGeneratedOperations", AllGeneratedOperations);
+        intent.putExtra("AnswerPercentage", AnswerPercentage);
         startActivity(intent);
     }
 
@@ -262,13 +275,17 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
         if (Double.compare(systemAnswer, userAnswer) == 0) {
             AllGeneratedOperations += String.valueOf(generatedOperation) + " = " + userAnswer + "\n"
                                     + "Your Answer is Correct. \n"
-                                    + "-----------------------\n";
+                                    + "--------------------------------------\n";
+            correctAnswers++;
         } else {
             AllGeneratedOperations += String.valueOf(generatedOperation) + " = " + userAnswer + "\n"
                     + "Your Answer is Wrong!!! \n"
                     + "Correct Answer is: " + systemAnswer + "\n"
-                    + "-----------------------\n";
+                    + "--------------------------------------\n";
+            wrongAnswers++;
         }
+
+        questionCounts++;
     }
 
     private void GenerateOperation() {

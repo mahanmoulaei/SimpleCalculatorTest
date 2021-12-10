@@ -1,22 +1,18 @@
 package com.example.simplecalculatortest;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.util.ArrayList;
 
 public class ShowAllActivity extends AppCompatActivity implements View.OnClickListener{
 
     Button buttonGoBackToCalculator;
     TextView textViewShowAllGeneratedOperations;
-    String AllGeneratedOperations = "";
+    String AllGeneratedOperations = "", AnswerPercentage = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,11 +28,15 @@ public class ShowAllActivity extends AppCompatActivity implements View.OnClickLi
 
         AllGeneratedOperations = getIntent().getStringExtra("AllGeneratedOperations");
 
+        AnswerPercentage = getIntent().getStringExtra("AnswerPercentage");
+
         ShowAllOperationsHistory();
     }
 
     private void ShowAllOperationsHistory() {
+        AllGeneratedOperations += AnswerPercentage;
         textViewShowAllGeneratedOperations.setText(AllGeneratedOperations);
+
     }
 
     private void InitializeScreenComponents() {
