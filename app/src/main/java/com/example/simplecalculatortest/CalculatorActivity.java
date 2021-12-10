@@ -24,7 +24,7 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
     Button button0, button1, button2, button3, button4, button5, button6, button7, button8, button9, buttonDecimal, buttonDash, buttonClear, buttonGenerate, buttonQuit, buttonValidate, buttonShowAll;
     Operation generatedOperation;
     private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
-    private boolean activateValidationButton = false;
+    private boolean activateValidationButton = false, activateGenerateButton = true;
     String AllGeneratedOperations = "", AnswerPercentage = "";
     private int questionCounts = 0, correctAnswers = 0, wrongAnswers = 0;
     private Double correctAnswersPercentage, wrongAnswersPercentage;
@@ -155,7 +155,13 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
                 break;
             }
             case R.id.buttonGenerate: {
-                GenerateOperation();
+                if (activateGenerateButton == true) {
+                    activateGenerateButton = false;
+                    GenerateOperation();
+                } else {
+                    Toast.makeText(this, "You Have To Answer The Generated Operation First!!!", Toast.LENGTH_SHORT).show();
+                }
+
                 activateValidationButton = true;
                 break;
             }
@@ -268,6 +274,7 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
     }
 
     private void SaveOperationInHistory(Double systemAnswer, Double userAnswer) {
+        activateGenerateButton = true;
         activateValidationButton = false;
         textViewGeneratedOperation.setText(null);
         editTextCalculation.setText(null);
