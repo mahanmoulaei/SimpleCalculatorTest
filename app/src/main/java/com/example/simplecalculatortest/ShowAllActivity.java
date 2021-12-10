@@ -1,6 +1,7 @@
 package com.example.simplecalculatortest;
 
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -36,7 +37,7 @@ public class ShowAllActivity extends AppCompatActivity implements View.OnClickLi
     private void ShowAllOperationsHistory() {
         AllGeneratedOperations += AnswerPercentage;
         textViewShowAllGeneratedOperations.setText(AllGeneratedOperations);
-
+        textViewShowAllGeneratedOperations.setMovementMethod(new ScrollingMovementMethod());
     }
 
     private void InitializeScreenComponents() {
